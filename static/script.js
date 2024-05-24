@@ -36,12 +36,16 @@ function weatherHandler() {
         event.preventDefault();
         RequestToServer(event.target, urlWeather)
         .then(response => {
-            res.innerHTML = `<p>Тeмпература: ${response["Тeмпература"]}°</p> <p>Вологість: ${response["Вологість"]} %</p> <p> Швидкість вітру: ${response["Швидкість вітру:"]} км/год</p>
-            <img  src=static/foto_weather/${response["Картинка"]}>`;
+            res.innerHTML = `<p>Тeмпература: ${response["Тeмпература"]}°</p> <p>Вологість: ${response["Вологість"]} %</p> <p> Швидкість вітру: ${response["Швидкість вітру:"]} км/год</p>`;
+
+            // Встановлюємо зображення як фоновий елемент
+            document.body.style.backgroundImage = `url(static/foto_weather/${response["Картинка"]})`;
+            document.body.style.backgroundSize = 'cover'; // Розтягуємо зображення на весь екран
+
+            document.body.style.opacity = '0.5'; // Задаємо напівпрозорість фону
         });
     });
 };
-
 //<img src="static/foto_weather/cold.jpg">
 
 function weather5dayHandler() {
