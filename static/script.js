@@ -37,7 +37,9 @@ function weatherHandler() {
         RequestToServer(event.target, urlWeather)
         .then(response => {
             res.innerHTML = `<p>Тeмпература: ${response["Тeмпература"]}°</p> <p>Вологість: ${response["Вологість"]} %</p> <p> Швидкість вітру: ${response["Швидкість вітру:"]} км/год</p>
-            <img  src=static/foto_weather/${response["Картинка"]}>`;
+           document.body.style.backgroundImage = `url(static/foto_weather/${response["Картинка"]})`;
+            // Встановимо фонове зображення на всю сторінку
+            document.body.style.backgroundSize = 'cover';
         });
     });
 };

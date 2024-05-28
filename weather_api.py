@@ -45,53 +45,80 @@ def f_1():
 def f_6():
     return render_template('weather_pg1.html')
 
-# @app.route('/weather', methods = ['POST'])
-# def f_7():
-#     city = request.form['text']
-#     url = f'http://api.openweathermap.org/data/2.5/weather?q={city}&appid={api_key}'
-#     res = requests.get(url)
-#     if res.status_code == 200:
-#         data1 = res.json()
-#         session1 = session.get('list', [])
-#         if city not in session1:
-#             session1.append(city)
-#             session['list'] = session1
-#         weather_foto = weather[4]
-#         data = {'Тeмпература': f'{round(data1["main"]["temp"] - 273, 1)}',"Вологість" : f'{data1["main"]["humidity"]}', 'Швидкість вітру:' : f'{data1["wind"]["speed"]}','Картинка' : f'{weather_foto}'}
-#         print(data1)
-#     else:
-#         data = {'Тeмпература': f'Виникла помилка('}
-#     return jsonify(data), 200
-@app.route('/weather', methods=['POST'])
+@app.route('/weather', methods = ['POST'])
 def f_7():
     city = request.form['text']
     url = f'http://api.openweathermap.org/data/2.5/weather?q={city}&appid={api_key}'
     res = requests.get(url)
-
     if res.status_code == 200:
         data1 = res.json()
         session1 = session.get('list', [])
         if city not in session1:
             session1.append(city)
             session['list'] = session1
-
-        temperature = round(data1["main"]["temp"] - 273, 1)
+        temperature = round(data1["main"]["temp"] - 273.15, 1)
         humidity = data1["main"]["humidity"]
         wind_speed = data1["wind"]["speed"]
 
         if temperature > 25:
-            weather_photo = "sun1.jfif"
-        elif 20 <= temperature <= 30:
-            weather_photo = "sun.jpg"
-        elif 10 <= temperature < 20:
-            weather_photo = "proholodno.jfif"
+            weather_photo = "very_hot.jpeg"
+        elif 18 <= temperature <= 25:
+            weather_photo = "sun2.jpeg"
+        elif 10 <= temperature < 17:
+            weather_photo = "cool.jpeg"
         elif temperature < 10:
-            weather_photo = "cold.jpg"
-        data = {'Тeмпература': f'{round(data1["main"]["temp"] - 273, 1)}',"Вологість" : f'{data1["main"]["humidity"]}', 'Швидкість вітру:' : f'{data1["wind"]["speed"]}','Картинка' : f'{weather_photo}'}
+            weather_photo = "very_cool.jpeg"
+        elif 85 <= humidity <= 100:
+            weather_photo = "rain.jpeg"
+
+        data = {
+            'Тeмпература': f'{temperature}',
+            'Вологість': f'{humidity}',
+            'Швидкість вітру:': f'{wind_speed}',
+            'Картинка': weather_photo
+        }
+
     else:
-        data = {'Тeмпература': f'Виникла помилка('}
+        data = {'Картинка': 'error.jpeg'}
 
     return jsonify(data), 200
+# @app.route('/weather', methods=['POST'])
+# def f_7():
+#     city = request.form['text']
+#     url = f'http://api.openweathermap.org/data/2.5/weather?q={city}&appid={api_key}'
+#     res = requests.get(url)
+#
+#     if res.status_code == 200:
+#         data1 = res.json()
+#         session1 = session.get('list', [])
+#         if city not in session1:
+#             session1.append(city)
+#             session['list'] = session1
+#
+#         temperature = round(data1["main"]["temp"] - 273.15, 1)
+#         humidity = data1["main"]["humidity"]
+#         wind_speed = data1["wind"]["speed"]
+#
+#         if temperature > 25:
+#             weather_photo = "very_hot.jpeg"
+#         elif 20 <= temperature <= 25:
+#             weather_photo = "sun2.jpg"
+#         elif 10 <= temperature < 20:
+#             weather_photo = "cool.jpeg"
+#         else:
+#             weather_photo = "very_cool.jpeg"
+#
+#         data = {
+#             'Тeмпература': f'{temperature}',
+#             'Вологість': f'{humidity}',
+#             'Швидкість вітру:': f'{wind_speed}',
+#             'Картинка': weather_photo
+#         }
+#
+#     else:
+#         data = {'Картинка': 'error.jpeg'}
+#
+#     return jsonify(data), 200
 
 
 
@@ -123,11 +150,30 @@ def get_weather_5day():
             daily_forecast[date]['wind_speed'].append(item['wind']['speed'])
 
         for date, values in daily_forecast.items():
+            avg_temp = round(sum(values['temperature']) / len(values['temperature']), 1)
+            avg_humidity = round(sum(values['humidity']) / len(values['humidity']), 1)
+            avg_wind_speed = round(sum(values['wind_speed']) / len(values['wind_speed']), 1)
+
+            weather_photo = ""
+
+            if avg_temp > 25:
+                weather_photo = "very_hot.jpeg"
+            elif 18 <= avg_temp <= 25:
+                weather_photo = "sun2.jpeg"
+            elif 10 <= avg_temp < 18:
+                weather_photo = "cool.jpeg"
+            elif avg_temp < 10:
+                weather_photo = "very_cool.jpeg"
+
+            if avg_humidity >= 80:
+                weather_photo = "rain.jpg"
+
             forecast = {
                 'date': date,
-                'temperature': round(sum(values['temperature']) / len(values['temperature']), 1),
-                'humidity': round(sum(values['humidity']) / len(values['humidity']), 1),
-                'wind_speed': round(sum(values['wind_speed']) / len(values['wind_speed']), 1)
+                'temperature': avg_temp,
+                'humidity': avg_humidity,
+                'wind_speed': avg_wind_speed,
+                'weather_photo': weather_photo
             }
             forecasts.append(forecast)
 
